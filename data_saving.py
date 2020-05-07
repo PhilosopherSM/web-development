@@ -1,10 +1,10 @@
 from flask import Flask, request, render_template
 
 
-def register(username, psw):
+def register(username, pwd):
     try:
-        f = open('.\\data\\' + username, 'x')
-        f.write(username + '\n' + psw)
+        f = open('.\\data\\' + username, mode='x')
+        f.write(username + '\n' + pwd)
         f.close()
         return True
     except FileExistsError:
@@ -12,10 +12,10 @@ def register(username, psw):
         return False
 
 
-def check_psw(username, psw):
+def check_psw(username, pwd):
     try:
         f = open('.\\data\\' + username, 'r')
-        if f.readlines()[1] == psw:
+        if f.readlines()[1] == pwd:
             f.close()
             return True
         else:
@@ -36,11 +36,16 @@ def register_page():
     return render_template('registration.html')
 
 
-@app.route('/hello', methods=['GET', 'POST'])
+@app.route('/hello', methods=['POST'])
 def hello_page():
-    register(request.form['userName'], request.form['passWord'])
-    return render_template('registered.html', username=request.form['userName'])
+    username = request.form.get('userName')
+    pwd = request.form.get('passWord')
+
+    if register(username, pwd) is True:
+        return render_template('registered.html', username=username)
+    else:
+        return render_template('registration.html', msg='用户名重复')
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
